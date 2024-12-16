@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <!-- scriptは上から順に実行 -->
+        <!-- <script>
+            location.href = "https://google.com";
+        </script> -->
+
+        <script>
+            str = "3";
+            num = Number(str);
+            num = 2*num;
+            console.log(num);
+        </script>
+        <script>
+            for(let i=1; i<11; i++) {
+                if(i % 2 == 0) {
+                    console.log(i);
+                }
+            }
+        </script>
+        <script>
+            let fruits = ["りんご", "バナナ", "オレンジ", "ぶどう"];
+            for( let i=0; i<fruits.length; i++) {
+                console.log(fruits[i]);
+            }
+        </script>
+        <script>
+            function square(x){
+                return x*x
+            }
+            console.log(square(3));
+        </script>
+        <script>
+            function Dog(){
+                this.name;
+                this.age;
+            }
+            Dog.prototype.bark = function(){
+                console.log(`${this.name}(${this.age})：ワン！`);
+            }
+            var kota = new Dog();
+            kota.name = "kota";
+            kota.age = 6;
+            kota.bark()
+        </script>
+
+    </head>
+    <body>
+        <h1>このページへようこそ！</h1>
+        <div id="container">
+        </div>
+        <div>
+            <h2>得点: <span id="score">0</span>点</h2>
+            <button id="addButton">加点(+10点)</button>
+            <button id="subtractButton">減点(-5点)</button>
+            <button id="resetButton">リセット</button>
+        </div>
+        <div>
+            <div id="countdown">10</div>
+            <button id="countBtn">開始</button>
+        </div>
+
+
+        <script>
+            const countdownElement = document.getElementById("countdown");
+            const countBtn = document.getElementById("countBtn");
+            countBtn.addEventListener('click', () => {
+                let count = 10;
+
+                const intervalId = setInterval(() => {
+                count -= 1;
+                if (count === 0) {
+                    countdownElement.textContent = "Time's up!";
+                    clearInterval(intervalId);
+                } else {
+                    countdownElement.textContent = count;
+                }
+                }, 1000);
+            })
+
+            let score = 0;
+
+            const scoreElement = document.getElementById("score");
+            function UpdateScore(){
+                scoreElement.textContent = score;
+            }
+
+            const addButton = document.getElementById("addButton");
+            addButton.addEventListener('click', () => {
+                score += 10;
+                UpdateScore();
+            })
+            const subtractButton = document.getElementById("subtractButton");
+            subtractButton.addEventListener('click', () => {
+                score -= 5;
+                UpdateScore();
+            })
+            const resetButton = document.getElementById("resetButton");
+            resetButton.addEventListener('click', () => {
+                score = 0;
+                UpdateScore();
+            })
+        </script>
+    </body>
+</html>

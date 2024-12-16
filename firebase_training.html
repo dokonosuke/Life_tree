@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            //firebaseの初期化
+            const firebaseConfig = {
+            apiKey: "AIzaSyB3VsN2RAvd8tE21y49nvpSulcnK0Mmphw",
+            authDomain: "creativemonozukuri.firebaseapp.com",
+            projectId: "creativemonozukuri",
+            storageBucket: "creativemonozukuri.appspot.com",
+            messagingSenderId: "290080836882",
+            databaseURL: "https://creativemonozukuri-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            appId: "1:290080836882:web:6728d403300e3e22d837cb"
+            };
+            firebase.initializeApp(firebaseConfig);
+
+            //データベースへの参照の取得
+            database = firebase.database();
+
+            //データを追加する
+            dbDataRef = database.ref("test");
+            // dbDataRef.set({
+            //     name: "Yoshida",
+            //     city: "Tokyo"
+            // })
+
+        </script>
+    </head>
+    <body>
+        <div id="content">
+        </div>
+        <script
+            dbTopicsRef = database.ref("topics");
+            dbTopicsRef.on("value", (snapshot) =>{
+                data = snapshot.val();
+                console.log(data);
+            }
+        </script>
+    </body>
+</html>
