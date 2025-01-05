@@ -1,14 +1,15 @@
 // Firebase の初期化
 const firebaseConfig = {
 	// 自身の情報を入れる
-  apiKey: "AIzaSyB3VsN2RAvd8tE21y49nvpSulcnK0Mmphw",
-  authDomain: "creativemonozukuri.firebaseapp.com",
-  projectId: "creativemonozukuri",
-  storageBucket: "creativemonozukuri.appspot.com",
-  messagingSenderId: "290080836882",
-  databaseURL: "https://creativemonozukuri-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  appId: "1:290080836882:web:6728d403300e3e22d837cb"
+  apiKey: "AIzaSyDp-dbowAKacecIgsCtL7ZgDnwoMeOuHa0",
+  authDomain: "life-tree-8fb10.firebaseapp.com",
+  projectId: "life-tree-8fb10",
+  storageBucket: "life-tree-8fb10.firebasestorage.app",
+  messagingSenderId: "773221876441",
+  appId: "1:773221876441:web:b2b2d8d1e1de298217b4c8",
+  databaseURL: "https://life-tree-8fb10-default-rtdb.asia-southeast1.firebasedatabase.app/",
 };
+
 firebase.initializeApp(firebaseConfig);
 
 // Auth, Realtime Database のインスタンスを取得
