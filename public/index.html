@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
   <meta charset="UTF-8">
   <title>生命の樹</title>
@@ -21,15 +21,17 @@
     <button id="sign-in-button">Google でサインイン</button>
   </div>
 
-  <div id="topics-area" style="display: none;">
-    <a href="create_topic.html">トピックを作成</a> <br> <br> 
-    <h2>トピック一覧</h2>
-    <ul id="topic-list">
-      <!-- トピック一覧を表示 -->
-    </ul>
-    
-    <button id="sign-out-button">ログアウト</button>
+
+  <div id="questions-area" style="display: none;">
+    <p id="current-question"></p>
+    <button class="answer-button" data-answer="yes">はい</button>
+    <button class="answer-button" data-answer="no">いいえ</button>
   </div>
+
+  <div id="sign-out-area">
+    <button id="sign-out-button" style="display:none;">サインアウト</button>
+  </div>
+
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
