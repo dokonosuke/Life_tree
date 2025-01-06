@@ -68,6 +68,8 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
+// こっからしたを変えてく
+
 // トピック一覧を表示する関数
 function showTopicsArea() {
   document.getElementById('auth-area').style.display = 'none';
