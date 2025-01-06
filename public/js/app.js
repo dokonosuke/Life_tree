@@ -1,7 +1,7 @@
 // Firebase の初期化
 const firebaseConfig = {
 	// 自身の情報を入れる
-  apiKey: "${{ secrets.FIREBASE_API_KEY }}",
+  apiKey: "AIzaSyDp-dbowAKacecIgsCtL7ZgDnwoMeOuHa0",
   authDomain: "life-tree-8fb10.firebaseapp.com",
   projectId: "life-tree-8fb10",
   storageBucket: "life-tree-8fb10.firebasestorage.app",
