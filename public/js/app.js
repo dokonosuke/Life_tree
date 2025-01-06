@@ -46,7 +46,8 @@ if (signInButton) {
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log('サインイン済みです');
-    showSignArea();  // サインイン後にボタンを表示
+    showSignOutArea();  // サインイン後にボタンを表示
+    fetchQuestions();
 
     // サインアウトボタンの処理
     const signOutButton = document.getElementById('sign-out-button');
@@ -67,23 +68,6 @@ auth.onAuthStateChanged((user) => {
 });
 
 
-// 質問のデータを登録（初回のみ）
-function addQuestions() {
-  const initialQuestions = {
-    1: "あなたはコーヒーが好きですか？",
-    2: "朝食を毎日食べますか？",
-    3: "運動を定期的にしていますか？",
-  };
-
-  database.ref('questions').set(initialQuestions, (error) => {
-    if (error) {
-      console.error("質問の登録に失敗:", error);
-    } else {
-      console.log("質問が正常に登録されました");
-    }
-  });
-}
-
 // 質問データを取得
 let questions = [];
 let currentQuestionIndex = 0;
@@ -96,6 +80,7 @@ function fetchQuestions() {
       questions = Object.values(data); // 配列に変換
       currentQuestionIndex = 0; // インデックスリセット
       showCurrentQuestion(); // 最初の質問を表示
+      document.getElementById('questions-area').style.display = 'block'; // 質問エリアを表示
     } else {
       console.error('質問データがありません');
       document.getElementById('questions-area').innerHTML = '<p>質問がありません。</p>';
@@ -128,22 +113,8 @@ document.querySelectorAll('.answer-button').forEach((button) => {
   });
 });
 
-// 質問エリアの表示
-function showTopicsArea() {
-  document.getElementById('auth-area').style.display = 'none';
-  document.getElementById('questions-area').style.display = 'block';
-}
 
-// 質問エリアの非表示
-function hideTopicsArea() {
-  document.getElementById('auth-area').style.display = 'block';
-  document.getElementById('questions-area').style.display = 'none';
-}
-
-// 初期化時に質問を登録（必要に応じてコメント解除）
-addQuestions();
-
-function showSignArea() {
+function showSignOutArea() {
   document.getElementById('auth-area').style.display = 'none';
   document.getElementById('sign-out-area').style.display = 'block';
 
