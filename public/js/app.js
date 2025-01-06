@@ -10,63 +10,132 @@ const firebaseConfig = {
   databaseURL: "https://life-tree-8fb10-default-rtdb.asia-southeast1.firebasedatabase.app/",
 };
 
+// Firebaseの初期化
 firebase.initializeApp(firebaseConfig);
 
 // Auth, Realtime Database のインスタンスを取得
 const auth = firebase.auth();
 const database = firebase.database();
 
-// Google サインイン
+// Google サインインの設定
 const signInButton = document.getElementById('sign-in-button');
 if (signInButton) {
   signInButton.addEventListener('click', () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
-      .then((result) => {
-        // サインイン成功時の処理
-        console.log('サインインしました');
-        const user = result.user;
-        // ユーザー情報を Firebase Realtime Database に保存
-        // 必要に応じて、ユーザー名などを取得して保存
-        database.ref('users/' + user.uid).set({
-          displayName: user.displayName,
-          // ...
+        .then((result) => {
+          // サインイン成功時
+          const user = result.user;
+          console.log('サインインしました');
+
+          // ユーザー情報を Firebase Realtime Database に保存
+          database.ref('users/' + user.uid).set({
+            displayName: user.displayName,
+          });
+
+          showTopicsArea(); // 質問エリアを表示
+        })
+        .catch((error) => {
+          // サインイン失敗時
+          console.error('サインインエラー:', error);
         });
-        showTopicsArea();
-      })
-      .catch((error) => {
-        // サインイン失敗時の処理
-        console.error(error);
-        // ...
-      });
   });
 }
-
 
 // サインイン状態の変更を監視
 auth.onAuthStateChanged((user) => {
   if (user) {
-    // ユーザーがサインインしている場合
     console.log('サインイン済みです');
-    showTopicsArea();
+    showSignOutArea();  // サインイン後にボタンを表示
+    fetchQuestions();
 
-    // サインアウトボタンの処理を追加
+    // サインアウトボタンの処理
     const signOutButton = document.getElementById('sign-out-button');
     signOutButton.addEventListener('click', () => {
       auth.signOut().then(() => {
         console.log('サインアウトしました');
-        hideTopicsArea();
+        hideTopicsArea();  // 質問エリアを非表示
+        hideSignArea();    // サインインエリアを再表示
       }).catch((error) => {
         console.error("サインアウトエラー:", error);
       });
     });
 
   } else {
-    // ユーザーがサインアウトしている場合
     console.log('サインアウト済みです');
-    hideTopicsArea();
+    hideSignArea(); // サインインエリアの表示
   }
 });
+
+
+// 質問データを取得
+let questions = [];
+let currentQuestionIndex = 0;
+
+function fetchQuestions() {
+  const questionsRef = database.ref('questions');
+  questionsRef.once('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      questions = Object.values(data); // 配列に変換
+      currentQuestionIndex = 0; // インデックスリセット
+      showCurrentQuestion(); // 最初の質問を表示
+      document.getElementById('questions-area').style.display = 'block'; // 質問エリアを表示
+    } else {
+      console.error('質問データがありません');
+      document.getElementById('questions-area').innerHTML = '<p>質問がありません。</p>';
+    }
+  });
+}
+
+// 現在の質問を表示
+function showCurrentQuestion() {
+  const questionElement = document.getElementById('current-question');
+  if (currentQuestionIndex < questions.length) {
+    questionElement.textContent = questions[currentQuestionIndex];
+  } else {
+    document.getElementById('questions-area').innerHTML = '<p>すべての質問が終了しました！</p>';
+  }
+}
+
+// 回答を処理
+function handleAnswer(answer) {
+  console.log(`質問: ${questions[currentQuestionIndex]} | 回答: ${answer}`);
+  currentQuestionIndex++; // 次の質問
+  showCurrentQuestion(); // 次の質問を表示
+}
+
+// 回答ボタンのイベントリスナー
+document.querySelectorAll('.answer-button').forEach((button) => {
+  button.addEventListener('click', (event) => {
+    const answer = event.target.getAttribute('data-answer');
+    handleAnswer(answer);
+  });
+});
+
+
+function showSignOutArea() {
+  document.getElementById('auth-area').style.display = 'none';
+  document.getElementById('sign-out-area').style.display = 'block';
+
+  // サインアウトボタンの表示
+  const signOutButton = document.getElementById('sign-out-button');
+  if (signOutButton) {
+    signOutButton.style.display = 'block';  // ボタンを表示
+  }
+}
+
+// サインアウト後のUIを表示
+function hideSignArea() {
+  document.getElementById('auth-area').style.display = 'block';
+  document.getElementById('sign-out-area').style.display = 'none';
+}
+
+
+
+//下は例のやつ
+
+
 
 // トピック一覧を表示する関数
 function showTopicsArea() {
