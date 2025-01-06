@@ -10,51 +10,64 @@ const firebaseConfig = {
   databaseURL: "https://life-tree-8fb10-default-rtdb.asia-southeast1.firebasedatabase.app/",
 };
 
+// Firebaseの初期化
 firebase.initializeApp(firebaseConfig);
 
 // Auth, Realtime Database のインスタンスを取得
 const auth = firebase.auth();
 const database = firebase.database();
 
-// Google サインイン
-const signInButton = document.getElementById("sign-in-button");
+// Google サインインの設定
+const signInButton = document.getElementById('sign-in-button');
 if (signInButton) {
-  signInButton.addEventListener("click", () => {
+  signInButton.addEventListener('click', () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
         .then((result) => {
+          // サインイン成功時
           const user = result.user;
-          console.log("サインインしました:", user.displayName);
-          database.ref("users/" + user.uid).set({
+          console.log('サインインしました');
+
+          // ユーザー情報を Firebase Realtime Database に保存
+          database.ref('users/' + user.uid).set({
             displayName: user.displayName,
           });
-          fetchQuestions(); // 質問を取得して表示
-          showQuestionsArea(); // 質問エリアを表示
+
+          showTopicsArea(); // 質問エリアを表示
         })
-        .catch((error) => console.error("サインイン失敗:", error));
+        .catch((error) => {
+          // サインイン失敗時
+          console.error('サインインエラー:', error);
+        });
   });
 }
 
 // サインイン状態の変更を監視
 auth.onAuthStateChanged((user) => {
   if (user) {
-    console.log("サインイン済み:", user.displayName);
-    fetchQuestions();
-    showQuestionsArea();
+    console.log('サインイン済みです');
+    showSignArea();  // サインイン後にボタンを表示
+
+    // サインアウトボタンの処理
+    const signOutButton = document.getElementById('sign-out-button');
+    signOutButton.addEventListener('click', () => {
+      auth.signOut().then(() => {
+        console.log('サインアウトしました');
+        hideTopicsArea();  // 質問エリアを非表示
+        hideSignArea();    // サインインエリアを再表示
+      }).catch((error) => {
+        console.error("サインアウトエラー:", error);
+      });
+    });
+
   } else {
-    console.log("サインアウト状態");
-    hideQuestionsArea();
+    console.log('サインアウト済みです');
+    hideSignArea(); // サインインエリアの表示
   }
 });
 
-// 質問リスト
-let questions = [];
-let currentQuestionIndex = 0; // 現在の質問のインデックス
 
-// Firebase Realtime Database の質問ノード参照
-const questionsRef = database.ref("questions");
-
-// 質問データを登録
+// 質問のデータを登録（初回のみ）
 function addQuestions() {
   const initialQuestions = {
     1: "あなたはコーヒーが好きですか？",
@@ -62,7 +75,7 @@ function addQuestions() {
     3: "運動を定期的にしていますか？",
   };
 
-  questionsRef.set(initialQuestions, (error) => {
+  database.ref('questions').set(initialQuestions, (error) => {
     if (error) {
       console.error("質問の登録に失敗:", error);
     } else {
@@ -72,61 +85,80 @@ function addQuestions() {
 }
 
 // 質問データを取得
+let questions = [];
+let currentQuestionIndex = 0;
+
 function fetchQuestions() {
-  questionsRef.once("value", (snapshot) => {
+  const questionsRef = database.ref('questions');
+  questionsRef.once('value', (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      questions = Object.values(data); // 質問データを配列に変換
-      currentQuestionIndex = 0; // インデックスをリセット
+      questions = Object.values(data); // 配列に変換
+      currentQuestionIndex = 0; // インデックスリセット
       showCurrentQuestion(); // 最初の質問を表示
     } else {
-      console.error("質問データが存在しません");
-      document.getElementById("questions-area").innerHTML = "<p>質問がありません。</p>";
+      console.error('質問データがありません');
+      document.getElementById('questions-area').innerHTML = '<p>質問がありません。</p>';
     }
   });
 }
 
 // 現在の質問を表示
 function showCurrentQuestion() {
-  const questionElement = document.getElementById("current-question");
+  const questionElement = document.getElementById('current-question');
   if (currentQuestionIndex < questions.length) {
     questionElement.textContent = questions[currentQuestionIndex];
   } else {
-    document.getElementById("questions-area").innerHTML = "<p>すべての質問が終了しました！</p>";
+    document.getElementById('questions-area').innerHTML = '<p>すべての質問が終了しました！</p>';
   }
 }
 
-// ユーザーの回答を処理
+// 回答を処理
 function handleAnswer(answer) {
   console.log(`質問: ${questions[currentQuestionIndex]} | 回答: ${answer}`);
-  currentQuestionIndex++; // 次の質問へ
-  showCurrentQuestion();
+  currentQuestionIndex++; // 次の質問
+  showCurrentQuestion(); // 次の質問を表示
 }
 
 // 回答ボタンのイベントリスナー
-document.querySelectorAll(".answer-button").forEach((button) => {
-  button.addEventListener("click", (event) => {
-    const answer = event.target.getAttribute("data-answer");
+document.querySelectorAll('.answer-button').forEach((button) => {
+  button.addEventListener('click', (event) => {
+    const answer = event.target.getAttribute('data-answer');
     handleAnswer(answer);
   });
 });
 
 // 質問エリアの表示
-function showQuestionsArea() {
-  document.getElementById("auth-area").style.display = "none";
-  document.getElementById("questions-area").style.display = "block";
+function showTopicsArea() {
+  document.getElementById('auth-area').style.display = 'none';
+  document.getElementById('questions-area').style.display = 'block';
 }
 
 // 質問エリアの非表示
-function hideQuestionsArea() {
-  document.getElementById("auth-area").style.display = "block";
-  document.getElementById("questions-area").style.display = "none";
+function hideTopicsArea() {
+  document.getElementById('auth-area').style.display = 'block';
+  document.getElementById('questions-area').style.display = 'none';
 }
 
 // 初期化時に質問を登録（必要に応じてコメント解除）
 addQuestions();
 
+function showSignArea() {
+  document.getElementById('auth-area').style.display = 'none';
+  document.getElementById('sign-out-area').style.display = 'block';
 
+  // サインアウトボタンの表示
+  const signOutButton = document.getElementById('sign-out-button');
+  if (signOutButton) {
+    signOutButton.style.display = 'block';  // ボタンを表示
+  }
+}
+
+// サインアウト後のUIを表示
+function hideSignArea() {
+  document.getElementById('auth-area').style.display = 'block';
+  document.getElementById('sign-out-area').style.display = 'none';
+}
 
 
 
