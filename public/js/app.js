@@ -125,9 +125,17 @@ function fetchQuestions() {
     const data = snapshot.val();
     questions.length = 0; // 既存の質問をクリア
     for (const key in data) {
-      questions.push(data[key]);
+      questions.push(data[key]); // 質問を配列に追加
     }
-    showCurrentQuestion(); // 最初の質問を表示
+
+    // Firebaseから質問を正常に取得した場合にのみ最初の質問を表示
+    if (questions.length > 0) {
+      currentQuestionIndex = 0; // インデックスをリセット
+      showCurrentQuestion();
+    } else {
+      console.error("質問が見つかりません。");
+      document.getElementById("questions-area").innerHTML = "<p>質問がありません。</p>";
+    }
   });
 }
 
