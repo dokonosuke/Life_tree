@@ -17,68 +17,99 @@ const auth = firebase.auth();
 const database = firebase.database();
 
 // Google サインイン
-const signInButton = document.getElementById('sign-in-button');
+const signInButton = document.getElementById("sign-in-button");
 if (signInButton) {
-  signInButton.addEventListener('click', () => {
+  signInButton.addEventListener("click", () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
-      .then((result) => {
-        // サインイン成功時の処理
-        console.log('サインインしました');
-        const user = result.user;
-        // ユーザー情報を Firebase Realtime Database に保存
-        // 必要に応じて、ユーザー名などを取得して保存
-        database.ref('users/' + user.uid).set({
-          displayName: user.displayName,
-          // ...
-        });
-        showTopicsArea();
-      })
-      .catch((error) => {
-        // サインイン失敗時の処理
-        console.error(error);
-        // ...
-      });
+        .then((result) => {
+          const user = result.user;
+          console.log("サインインしました:", user.displayName);
+          database.ref("users/" + user.uid).set({
+            displayName: user.displayName,
+          });
+          fetchQuestions(); // 質問を取得して表示
+          showQuestionsArea(); // 質問エリアを表示
+        })
+        .catch((error) => console.error("サインイン失敗:", error));
   });
 }
-
 
 // サインイン状態の変更を監視
 auth.onAuthStateChanged((user) => {
   if (user) {
-    // ユーザーがサインインしている場合
-    console.log('サインイン済みです');
+    console.log("サインイン済み:", user.displayName);
+    fetchQuestions();
     showQuestionsArea();
-
-    // サインアウトボタンの処理を追加
-    const signOutButton = document.getElementById('sign-out-button');
-    signOutButton.addEventListener('click', () => {
-      auth.signOut().then(() => {
-        console.log('サインアウトしました');
-        hideQuestionsArea();
-      }).catch((error) => {
-        console.error("サインアウトエラー:", error);
-      });
-    });
   } else {
-    // ユーザーがサインアウトしている場合
-    console.log('サインアウト済みです');
-    hideTopicsArea();
+    console.log("サインアウト状態");
+    hideQuestionsArea();
   }
 });
 
+// 質問リスト
+let questions = [];
+let currentQuestionIndex = 0; // 現在の質問のインデックス
 
-// こっからしたを変えてく
+// Firebase Realtime Database の質問ノード参照
+const questionsRef = database.ref("questions");
 
-// 質問リスト（例としてハードコード、Firebaseから取得する場合は後述）
-const questions = [
-  "あなたはコーヒーが好きですか？",
-  "朝食を毎日食べますか？",
-  "運動を定期的にしていますか？",
-];
+// 質問データを登録
+function addQuestions() {
+  const initialQuestions = {
+    1: "あなたはコーヒーが好きですか？",
+    2: "朝食を毎日食べますか？",
+    3: "運動を定期的にしていますか？",
+  };
 
-let currentQuestionIndex = 0; // 現在の質問インデックス
+  questionsRef.set(initialQuestions, (error) => {
+    if (error) {
+      console.error("質問の登録に失敗:", error);
+    } else {
+      console.log("質問が正常に登録されました");
+    }
+  });
+}
 
+// 質問データを取得
+function fetchQuestions() {
+  questionsRef.once("value", (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      questions = Object.values(data); // 質問データを配列に変換
+      currentQuestionIndex = 0; // インデックスをリセット
+      showCurrentQuestion(); // 最初の質問を表示
+    } else {
+      console.error("質問データが存在しません");
+      document.getElementById("questions-area").innerHTML = "<p>質問がありません。</p>";
+    }
+  });
+}
+
+// 現在の質問を表示
+function showCurrentQuestion() {
+  const questionElement = document.getElementById("current-question");
+  if (currentQuestionIndex < questions.length) {
+    questionElement.textContent = questions[currentQuestionIndex];
+  } else {
+    document.getElementById("questions-area").innerHTML = "<p>すべての質問が終了しました！</p>";
+  }
+}
+
+// ユーザーの回答を処理
+function handleAnswer(answer) {
+  console.log(`質問: ${questions[currentQuestionIndex]} | 回答: ${answer}`);
+  currentQuestionIndex++; // 次の質問へ
+  showCurrentQuestion();
+}
+
+// 回答ボタンのイベントリスナー
+document.querySelectorAll(".answer-button").forEach((button) => {
+  button.addEventListener("click", (event) => {
+    const answer = event.target.getAttribute("data-answer");
+    handleAnswer(answer);
+  });
+});
 
 // 質問エリアの表示
 function showQuestionsArea() {
@@ -92,62 +123,9 @@ function hideQuestionsArea() {
   document.getElementById("questions-area").style.display = "none";
 }
 
-// 現在の質問を表示
-function showCurrentQuestion() {
-  if (currentQuestionIndex < questions.length) {
-    const questionElement = document.getElementById("current-question");
-    questionElement.textContent = questions[currentQuestionIndex];
-  } else {
-    // 全ての質問が終了した場合
-    document.getElementById("questions-area").innerHTML = "<p>すべての質問が終了しました！</p>";
-  }
-}
+// 初期化時に質問を登録（必要に応じてコメント解除）
+addQuestions();
 
-// ユーザーの回答を処理
-function handleAnswer(answer) {
-  console.log(`質問: ${questions[currentQuestionIndex]} | 回答: ${answer}`);
-  currentQuestionIndex++; // 次の質問に進む
-  showCurrentQuestion();
-}
-
-// 回答ボタンのイベントリスナー
-document.querySelectorAll(".answer-button").forEach((button) => {
-  button.addEventListener("click", (event) => {
-    const answer = event.target.getAttribute("data-answer");
-    handleAnswer(answer);
-  });
-});
-
-const questionsRef = firebase.database().ref("questions");
-
-function fetchQuestions() {
-  questionsRef.once("value", (snapshot) => {
-    const data = snapshot.val();
-    questions.length = 0; // 既存の質問をクリア
-    for (const key in data) {
-      questions.push(data[key]); // 質問を配列に追加
-    }
-
-    // Firebaseから質問を正常に取得した場合にのみ最初の質問を表示
-    if (questions.length > 0) {
-      currentQuestionIndex = 0; // インデックスをリセット
-      showCurrentQuestion();
-    } else {
-      console.error("質問が見つかりません。");
-      document.getElementById("questions-area").innerHTML = "<p>質問がありません。</p>";
-    }
-  });
-}
-
-// ログイン後に質問を取得
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    fetchQuestions();
-    showQuestionsArea();
-  } else {
-    hideQuestionsArea();
-  }
-});
 
 
 
