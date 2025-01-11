@@ -561,6 +561,32 @@ table tr:nth-child(even) {
     background-color: var(--color-accent);
 }
 
+/* Boxes */
+.box-basic {
+    border: 1px solid black;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .box-dashed {
+    border: 2px dashed blue;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .box-rounded {
+    border: 2px solid black;
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .box-shadow {
+    border: 1px solid black;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+  }  
+
 /* Quotes */
 blockquote {
     display: block;
