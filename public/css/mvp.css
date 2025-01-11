@@ -268,7 +268,6 @@ p {
     margin: 0.75rem;
     padding: 0;
     width: 100%;
-    display: flex;
 }
 
 pre {
@@ -583,6 +582,10 @@ table tr:nth-child(even) {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+  }
+
+  .box-rounded p {
+    text-align: center;
   }
   
   .box-shadow {
