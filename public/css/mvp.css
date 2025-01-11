@@ -41,15 +41,15 @@
     }
 }
 
+html {
+    scroll-behavior: smooth;
+    font-size: 4vw; /* ビューポート幅に基づく文字サイズ */
+}
+
 @media (min-width: 768px) {
   html {
     font-size: 16px; /* タブレット以上では固定サイズ */
   }
-}
-
-html {
-    scroll-behavior: smooth;
-    font-size: 4vw; /* ビューポート幅に基づく文字サイズ */
 }
 
 @media (prefers-reduced-motion: reduce) {
