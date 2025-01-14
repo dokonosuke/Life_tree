@@ -33,7 +33,7 @@ if (signInButton) {
             displayName: user.displayName,
           });
 
-          showTopicsArea(); // 質問エリアを表示
+          //showCurrentQuestion(); // 質問エリアを表示
         })
         .catch((error) => {
           // サインイン失敗時
@@ -46,15 +46,15 @@ if (signInButton) {
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log('サインイン済みです');
+    document.getElementById('questions-area').style.display = 'block';
     showSignOutArea();  // サインイン後にボタンを表示
-    fetchQuestions();
-
+    //fetchQuestions();
+    showCurrentQuestion();
     // サインアウトボタンの処理
     const signOutButton = document.getElementById('sign-out-button');
     signOutButton.addEventListener('click', () => {
       auth.signOut().then(() => {
         console.log('サインアウトしました');
-        hideTopicsArea();  // 質問エリアを非表示
         hideSignArea();    // サインインエリアを再表示
       }).catch((error) => {
         console.error("サインアウトエラー:", error);
@@ -67,52 +67,74 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-
 // 質問データを取得
-let questions = [];
-let currentQuestionIndex = 0;
+let questions = [
+  { key: 1, text: "1" },
+  { key: 20, text: "20" },
+  { key: 21, text: "21" },
+  { key: 2030, text: "2030" },
+  { key: 2031, text: "2031" },
+];
 
-function fetchQuestions() {
-  const questionsRef = database.ref('questions');
-  questionsRef.once('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      questions = Object.values(data); // 配列に変換
-      currentQuestionIndex = 0; // インデックスリセット
-      showCurrentQuestion(); // 最初の質問を表示
-      document.getElementById('questions-area').style.display = 'block'; // 質問エリアを表示
-    } else {
-      console.error('質問データがありません');
-      document.getElementById('questions-area').innerHTML = '<p>質問がありません。</p>';
-    }
-  });
-}
+let results = [
+  { key: 203040, text: "203041結果" },
+  { key: 203041, text: "203041結果" },
+  { key: 203140, text: "203140結果" },
+  { key: 203141, text: "203141結果" },
+  { key: 2130, text: "2030結果" },
+  { key: 2131, text: "2031結果" }
+];
+
+let currentKey = 1;
+let currentN = 1;
 
 // 現在の質問を表示
 function showCurrentQuestion() {
   const questionElement = document.getElementById('current-question');
-  if (currentQuestionIndex < questions.length) {
-    questionElement.textContent = questions[currentQuestionIndex];
+  let content = '';
+
+  const result = results.find(r => r.key === currentKey);
+  if (result) {
+    // Show the result if available
+    content = result.text;
+    document.getElementById('answers-area').style.display = 'none';
   } else {
-    document.getElementById('questions-area').innerHTML = '<p>すべての質問が終了しました！</p>';
+    // If no result, show the question
+    const question = questions.find(q => q.key === currentKey);
+    content = question ? question.text : 'No question found';
   }
+
+  questionElement.textContent = content;
 }
 
 // 回答を処理
 function handleAnswer(answer) {
-  console.log(`質問: ${questions[currentQuestionIndex]} | 回答: ${answer}`);
-  currentQuestionIndex++; // 次の質問
+  // Yes/Noに基づいてkeyを更新
+  if (answer.toLowerCase() === 'yes') {
+    if (currentN === 1) {
+      currentKey = 20;
+    } else {
+      currentKey = 100*currentKey + (currentN+1)*10;
+    }
+  } else if (answer.toLowerCase() === 'no') {
+    if (currentN === 1) {
+      currentKey = 21;
+    } else {
+      currentKey = 100 * currentKey + (currentN + 1) * 10 + 1;
+    }
+  }
+  currentN += 1;
   showCurrentQuestion(); // 次の質問を表示
 }
 
-// 回答ボタンのイベントリスナー
-document.querySelectorAll('.answer-button').forEach((button) => {
-  button.addEventListener('click', (event) => {
-    const answer = event.target.getAttribute('data-answer');
-    handleAnswer(answer);
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.answer-button').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const answer = event.target.getAttribute('data-answer');
+      handleAnswer(answer);
+    });
   });
 });
-
 
 function showSignOutArea() {
   document.getElementById('auth-area').style.display = 'none';
@@ -129,107 +151,6 @@ function showSignOutArea() {
 function hideSignArea() {
   document.getElementById('auth-area').style.display = 'block';
   document.getElementById('sign-out-area').style.display = 'none';
+  document.getElementById('questions-area').style.display = 'none';
 }
 
-
-
-//下は例のやつ
-
-
-
-// トピック一覧を表示する関数
-function showTopicsArea() {
-  document.getElementById('auth-area').style.display = 'none';
-  document.getElementById('topics-area').style.display = 'block';
-  fetchTopics();
-}
-
-// トピック一覧を非表示にする関数
-function hideTopicsArea() {
-  document.getElementById('auth-area').style.display = 'block';
-  document.getElementById('topics-area').style.display = 'none';
-}
-
-// トピック一覧の取得・表示
-function fetchTopics() {
-  const topicsRef = database.ref('topics');
-  topicsRef.on('value', (snapshot) => {
-    const topics = snapshot.val();
-    const topicList = document.getElementById('topic-list');
-    topicList.innerHTML = '';
-    for (const key in topics) {
-      const topic = topics[key];
-      const listItem = document.createElement('li');
-      const topicLink = document.createElement('a');
-      topicLink.href = `topic.html?id=${key}`;
-      topicLink.textContent = topic.title;
-      listItem.appendChild(topicLink);
-      topicList.appendChild(listItem);
-    }
-  });
-}
-
-// トピックの作成
-const newTopicForm = document.getElementById('new-topic-form');
-if (newTopicForm) {
-  newTopicForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const newTopicRef = database.ref('topics').push();
-    newTopicRef.set({
-      title: document.getElementById('topic-name').value,
-      description: document.getElementById('topic-description').value,
-    }).then(() => {
-      // トピック作成後、トピック一覧ページに遷移
-      window.location.href = 'index.html';
-    });
-  });
-}
-
-// コメントの投稿・取得・表示
-const topicId = getQueryString('id');
-if (topicId) {
-  const commentsRef = database.ref(`comments/${topicId}`);
-  const commentList = document.getElementById('comment-list');
-
-  // コメントの取得と表示
-  commentsRef.on('value', (snapshot) => {
-    const comments = snapshot.val();
-    commentList.innerHTML = '';
-    for (const key in comments) {
-      const comment = comments[key];
-      const listItem = document.createElement('li');
-      listItem.textContent = `${comment.displayName}: ${comment.text}`;
-      commentList.appendChild(listItem);
-    }
-  });
-
-  // コメントの投稿
-  const postCommentButton = document.getElementById('post-comment');
-  if (postCommentButton) {
-    postCommentButton.addEventListener('click', () => {
-      const commentText = document.getElementById('comment-text').value;
-      if (commentText.trim() !== '') {
-        const user = auth.currentUser;
-        commentsRef.push().set({
-          text: commentText,
-          displayName: user.displayName,
-        });
-        document.getElementById('comment-text').value = '';
-      }
-    });
-  }
-
-  // トピックのタイトルと説明を表示
-  const topicRef = database.ref(`topics/${topicId}`);
-  topicRef.once('value').then((snapshot) => {
-    const topic = snapshot.val();
-    document.getElementById('topic-title').textContent = topic.title;
-    document.getElementById('topic-description').textContent = topic.description;
-  });
-}
-
-// クエリ文字列から値を取得する関数
-function getQueryString(key) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(key);
-}
