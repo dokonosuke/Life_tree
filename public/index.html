@@ -2,8 +2,10 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>生命の樹</title>
   <link rel="stylesheet" href="css/mvp.css">
+  <link rel="icon" href="logo_circle.ico">
 </head>
 <body>
   <header>
@@ -21,12 +23,13 @@
     <button id="sign-in-button">Google でサインイン</button>
   </div>
 
-
   <div id="questions-area" style="display: none;">
-    <p id="current-question"></p>
-    <div id="answers-area">
-    <button class="answer-button" data-answer="yes">はい</button>
-    <button class="answer-button" data-answer="no">いいえ</button>
+    <div class="box-rounded">
+      <p id="current-question"></p>
+      <div id="answers-area">
+        <button class="answer-button" data-answer="yes">はい</button>
+        <button class="answer-button" data-answer="no">いいえ</button>
+      </div>
     </div>
   </div>
 

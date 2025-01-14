@@ -43,6 +43,13 @@
 
 html {
     scroll-behavior: smooth;
+    font-size: 4vw; /* ビューポート幅に基づく文字サイズ */
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px; /* タブレット以上では固定サイズ */
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -258,7 +265,7 @@ ul li {
 }
 
 p {
-    margin: 0.75rem 0;
+    margin: 0.75rem;
     padding: 0;
     width: 100%;
 }
@@ -552,6 +559,47 @@ table tr td:first-child {
 table tr:nth-child(even) {
     background-color: var(--color-accent);
 }
+
+/* Boxes */
+.box-basic {
+    border: 1px solid black;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .box-dashed {
+    border: 2px dashed blue;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .box-rounded {
+    border: 2px solid black;
+    border-radius: 15px;
+    padding: 10px;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .box-rounded p {
+    text-align: center;
+  }
+  
+  .box-shadow {
+    border: 1px solid black;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+  }  
+
+  .button-group {
+    display: flex; /* ボタンを横並びにする */
+    justify-content: center; /* ボタンをグループ全体で中央揃え */
+    gap: 10px; /* ボタン同士の間隔を調整 */
+    margin-top: 10px; /* ボタンと上の質問テキストの間に余白を追加 */
+  }
 
 /* Quotes */
 blockquote {
