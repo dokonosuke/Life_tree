@@ -18,7 +18,7 @@
   </nav>
 </header>
 <h1>履歴</h1>
-<div id="history">
+<div id="historys">
   <p>履歴を読み込んでいます...</p>
 </div>
 
@@ -44,7 +44,7 @@
 
   // ログイン状態を監視
   auth.onAuthStateChanged((user) => {
-    const historyDiv = document.getElementById("history");
+    const historyDiv = document.getElementById("historys");
 
     if (user) {
       // ユーザーがログイン中の場合、履歴を取得
@@ -58,7 +58,7 @@
           const historyItems = Object.values(history)
                   .map((entry) => {
                     const date = new Date(entry.timestamp).toLocaleString();
-                    return `<li>${entry.result} (Key: ${entry.key}, 日時: ${date})</li>`;
+                    return `<li>${entry.result} (${date})</li>`;
                   })
                   .join("");
 

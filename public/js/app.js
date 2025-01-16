@@ -20,9 +20,10 @@ let currentUser = null; // ログイン中のユーザー情報
 let currentKey = 1; // 現在の質問のキー
 let currentN = 1; // 質問番号
 
+
 // 質問データ
 const questions = [
-  { key: 1, text: "細胞核を持っていますか？？" },
+  { key: 1, text: "細胞核を持っていますか？" },
   { key: 20, text: "多細胞生物ですか？" },
   { key: 2030, text: "光合成を行いますか？" },
   { key: 21, text: "エーテル結合脂質を持っていますか？" },
@@ -50,9 +51,12 @@ if (signInButton) {
           // サインイン成功時
           const user = result.user;
           console.log('サインインしました');
+          currentKey = 1; // 現在の質問のキー
+          currentN = 1; // 質問番号
 
-          // ユーザー情報を Firebase Realtime Database に保存
-          database.ref('users/' + user.uid).set({
+          // ユーザー情報を Firebase Realtime Database に保存または更新
+          const userRef = database.ref('users/' + user.uid);
+          userRef.update({
             displayName: user.displayName,
           }).catch((error) => {
             console.error("ユーザー情報保存エラー:", error);
@@ -68,6 +72,7 @@ if (signInButton) {
         });
   });
 }
+
 
 // サインイン状態の変更を監視
 auth.onAuthStateChanged((user) => {
@@ -183,4 +188,6 @@ function hideSignArea() {
     signOutButton.style.display = 'none'; // サインアウトボタンを非表示
   }
 }
+
+
 
