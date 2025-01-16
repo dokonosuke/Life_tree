@@ -1,6 +1,5 @@
-// Firebase の初期化
+// Firebaseの初期化
 const firebaseConfig = {
-  // 自身の情報を入れる
   apiKey: "AIzaSyDp-dbowAKacecIgsCtL7ZgDnwoMeOuHa0",
   authDomain: "life-tree-8fb10.firebaseapp.com",
   projectId: "life-tree-8fb10",
@@ -13,9 +12,33 @@ const firebaseConfig = {
 // Firebaseの初期化
 firebase.initializeApp(firebaseConfig);
 
-// Auth, Realtime Database のインスタンスを取得
+// Auth, Realtime Databaseのインスタンスを取得
 const auth = firebase.auth();
 const database = firebase.database();
+
+let currentUser = null; // ログイン中のユーザー情報
+let currentKey = 1; // 現在の質問のキー
+let currentN = 1; // 質問番号
+
+// 質問データ
+const questions = [
+  { key: 1, text: "細胞核を持っていますか？？" },
+  { key: 20, text: "多細胞生物ですか？" },
+  { key: 2030, text: "光合成を行いますか？" },
+  { key: 21, text: "エーテル結合脂質を持っていますか？" },
+  { key: 2130, text: "極限環境で生息していますか？" },
+  { key: 2131, text: "光合成を行いますか？" },
+];
+
+const results = [
+  { key: 203040, text: "植物や藻類" },
+  { key: 203041, text: "動物、菌類" },
+  { key: 2031, text: "単細胞真核生物" },
+  { key: 213040, text: "好熱菌、好塩菌などの極限環境アーキア" },
+  { key: 213041, text: "一般的なアーキア" },
+  { key: 213140, text: "光合成細菌" },
+  { key: 213141, text: "大腸菌や乳酸菌など" },
+];
 
 // Google サインインの設定
 const signInButton = document.getElementById('sign-in-button');
@@ -31,12 +54,16 @@ if (signInButton) {
           // ユーザー情報を Firebase Realtime Database に保存
           database.ref('users/' + user.uid).set({
             displayName: user.displayName,
+          }).catch((error) => {
+            console.error("ユーザー情報保存エラー:", error);
           });
 
-          //showCurrentQuestion(); // 質問エリアを表示
+          // UI更新
+          currentUser = user;
+          showSignOutArea();  // サインイン後にボタンを表示
+          showCurrentQuestion();
         })
         .catch((error) => {
-          // サインイン失敗時
           console.error('サインインエラー:', error);
         });
   });
@@ -46,53 +73,31 @@ if (signInButton) {
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log('サインイン済みです');
+    currentUser = user;
     document.getElementById('questions-area').style.display = 'block';
-    showSignOutArea();  // サインイン後にボタンを表示
-    //fetchQuestions();
+    showSignOutArea();
     showCurrentQuestion();
-    // サインアウトボタンの処理
-    const signOutButton = document.getElementById('sign-out-button');
-    signOutButton.addEventListener('click', () => {
-      auth.signOut().then(() => {
-        console.log('サインアウトしました');
-        hideSignArea();    // サインインエリアを再表示
-      }).catch((error) => {
-        console.error("サインアウトエラー:", error);
-      });
-    });
-
   } else {
     console.log('サインアウト済みです');
-    hideSignArea(); // サインインエリアの表示
+    currentUser = null;
+    hideSignArea();
   }
 });
 
-// 質問データを取得
-let questions = [
-  { key: 1, text: "細胞核を持っていますか？？" },
-  { key: 20, text: "多細胞生物ですか？" },
-  { key: 2030, text: "光合成を行いますか？" },
-
-
-  { key: 21, text: "エーテル結合脂質を持っていますか？" },
-  { key: 2130, text: "極限環境で生息していますか？" },
-
-  { key: 2131, text: "光合成を行いますか？" },
-
-];
-
-let results = [
-  { key: 203040, text: "植物や藻類"},
-  { key: 203041, text: "動物、菌類"},
-  { key: 2031, text: "単細胞真核生物" },
-  { key: 213040, text: "好熱菌、好塩菌などの極限環境アーキア"},
-  { key: 213041, text: "一般的なアーキア"},
-  { key: 213140, text: " 光合成細菌"},
-  { key: 213141, text: "大腸菌や乳酸菌など"}
-];
-
-let currentKey = 1;
-let currentN = 1;
+// サインアウト処理
+const signOutButton = document.getElementById('sign-out-button');
+if (signOutButton) {
+  signOutButton.addEventListener('click', () => {
+    auth.signOut()
+        .then(() => {
+          console.log('サインアウトしました');
+          hideSignArea();
+        })
+        .catch((error) => {
+          console.error("サインアウトエラー:", error);
+        });
+  });
+}
 
 // 現在の質問を表示
 function showCurrentQuestion() {
@@ -101,13 +106,28 @@ function showCurrentQuestion() {
 
   const result = results.find(r => r.key === currentKey);
   if (result) {
-    // Show the result if available
+    // 結果を表示
     content = result.text;
+
+    // 結果を履歴に保存
+    if (currentUser) {
+      const userRef = database.ref(`users/${currentUser.uid}/history`);
+      userRef.push({
+        key: currentKey,
+        result: result.text,
+        timestamp: Date.now(),
+      }).then(() => {
+        console.log("結果が履歴に保存されました");
+      }).catch((error) => {
+        console.error("履歴保存エラー:", error);
+      });
+    }
+
     document.getElementById('answers-area').style.display = 'none';
   } else {
-    // If no result, show the question
+    // 質問を表示
     const question = questions.find(q => q.key === currentKey);
-    content = question ? question.text : 'No question found';
+    content = question ? question.text : '質問が見つかりません';
   }
 
   questionElement.textContent = content;
@@ -120,7 +140,7 @@ function handleAnswer(answer) {
     if (currentN === 1) {
       currentKey = 20;
     } else {
-      currentKey = 100*currentKey + (currentN+1)*10;
+      currentKey = 100 * currentKey + (currentN + 1) * 10;
     }
   } else if (answer.toLowerCase() === 'no') {
     if (currentN === 1) {
@@ -133,6 +153,7 @@ function handleAnswer(answer) {
   showCurrentQuestion(); // 次の質問を表示
 }
 
+// ボタンのイベントリスナー
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.answer-button').forEach((button) => {
     button.addEventListener('click', (event) => {
@@ -146,17 +167,20 @@ function showSignOutArea() {
   document.getElementById('auth-area').style.display = 'none';
   document.getElementById('sign-out-area').style.display = 'block';
 
-  // サインアウトボタンの表示
   const signOutButton = document.getElementById('sign-out-button');
   if (signOutButton) {
-    signOutButton.style.display = 'block';  // ボタンを表示
+    signOutButton.style.display = 'block'; // サインアウトボタンを表示
   }
 }
 
-// サインアウト後のUIを表示
 function hideSignArea() {
   document.getElementById('auth-area').style.display = 'block';
   document.getElementById('sign-out-area').style.display = 'none';
   document.getElementById('questions-area').style.display = 'none';
+
+  const signOutButton = document.getElementById('sign-out-button');
+  if (signOutButton) {
+    signOutButton.style.display = 'none'; // サインアウトボタンを非表示
+  }
 }
 

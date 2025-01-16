@@ -8,21 +8,85 @@
   <link rel="icon" href="logo_circle.ico">
 </head>
 <body>
-  <header>
-    <nav>
-        <a href="index.html"><img alt="Logo" src="logo.jpg" height="100"></a>
-        <ul>
-          <li><a href="about.html">このサイトについて</a></li>
-          <li><a href="history.html">履歴</a></li>
-        </ul>
-    </nav>
-  </header>
-  <h1>履歴</h1>
-  <p>このページは準備中です。</p>
+<header>
+  <nav>
+    <a href="index.html"><img alt="Logo" src="logo.jpg" height="100"></a>
+    <ul>
+      <li><a href="about.html">このサイトについて</a></li>
+      <li><a href="history.html">履歴</a></li>
+    </ul>
+  </nav>
+</header>
+<h1>履歴</h1>
+<div id="history">
+  <p>履歴を読み込んでいます...</p>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script src="js/app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+  // Firebaseの初期化
+  const firebaseConfig = {
+    apiKey: "AIzaSyDp-dbowAKacecIgsCtL7ZgDnwoMeOuHa0",
+    authDomain: "life-tree-8fb10.firebaseapp.com",
+    projectId: "life-tree-8fb10",
+    storageBucket: "life-tree-8fb10.firebasestorage.app",
+    messagingSenderId: "773221876441",
+    appId: "1:773221876441:web:b2b2d8d1e1de298217b4c8",
+    databaseURL: "https://life-tree-8fb10-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const database = firebase.database();
+
+  // ログイン状態を監視
+  auth.onAuthStateChanged((user) => {
+    const historyDiv = document.getElementById("history");
+
+    if (user) {
+      // ユーザーがログイン中の場合、履歴を取得
+      const userRef = database.ref(`users/${user.uid}/history`);
+
+      userRef.once("value", (snapshot) => {
+        const history = snapshot.val();
+
+        if (history) {
+          // 履歴が存在する場合、表示
+          const historyItems = Object.values(history)
+                  .map((entry) => {
+                    const date = new Date(entry.timestamp).toLocaleString();
+                    return `<li>${entry.result} (Key: ${entry.key}, 日時: ${date})</li>`;
+                  })
+                  .join("");
+
+          historyDiv.innerHTML = `<ul>${historyItems}</ul>`;
+        } else {
+          historyDiv.innerHTML = "<p>履歴がありません。</p>";
+        }
+      });
+    } else {
+      // ユーザーがログインしていない場合
+      historyDiv.innerHTML = `
+          <p>履歴を見るにはログインしてください。</p>
+          <button id="sign-in">ログイン</button>
+        `;
+
+      const signInButton = document.getElementById("sign-in");
+      signInButton.addEventListener("click", () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider)
+                .then((result) => {
+                  console.log("サインインしました: ", result.user.displayName);
+                })
+                .catch((error) => {
+                  console.error("サインインエラー: ", error);
+                });
+      });
+    }
+  });
+</script>
 </body>
 </html>
