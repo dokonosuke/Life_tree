@@ -9,19 +9,16 @@ const firebaseConfig = {
   databaseURL: "https://life-tree-8fb10-default-rtdb.asia-southeast1.firebasedatabase.app/",
 };
 
-// Firebaseの初期化
 firebase.initializeApp(firebaseConfig);
 
-// Auth, Realtime Databaseのインスタンスを取得
 const auth = firebase.auth();
 const database = firebase.database();
 
-let currentUser = null; // ログイン中のユーザー情報
-let currentKey = 1; // 現在の質問のキー
-let currentN = 1; // 質問番号
+let currentUser = null;
+let currentKey = 1;
+let currentN = 1;
 
 
-// 質問データ
 const questions = [
   { key: 1, text: "細胞核を持っていますか？" },
   { key: 20, text: "多細胞生物ですか？" },
@@ -56,20 +53,18 @@ const results = [
   { key: 213141, text: "大腸菌や乳酸菌など" },
 ];
 
-// Google サインインの設定
+
 const signInButton = document.getElementById('sign-in-button');
 if (signInButton) {
   signInButton.addEventListener('click', () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
         .then((result) => {
-          // サインイン成功時
           const user = result.user;
           console.log('サインインしました');
-          currentKey = 1; // 現在の質問のキー
-          currentN = 1; // 質問番号
+          currentKey = 1;
+          currentN = 1;
 
-          // ユーザー情報を Firebase Realtime Database に保存または更新
           const userRef = database.ref('users/' + user.uid);
           userRef.update({
             displayName: user.displayName,
@@ -77,9 +72,8 @@ if (signInButton) {
             console.error("ユーザー情報保存エラー:", error);
           });
 
-          // UI更新
           currentUser = user;
-          showSignOutArea();  // サインイン後にボタンを表示
+          showSignOutArea();
           showCurrentQuestion();
         })
         .catch((error) => {
@@ -88,8 +82,6 @@ if (signInButton) {
   });
 }
 
-
-// サインイン状態の変更を監視
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log('サインイン済みです');
@@ -104,7 +96,6 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-// サインアウト処理
 const signOutButton = document.getElementById('sign-out-button');
 if (signOutButton) {
   signOutButton.addEventListener('click', () => {
@@ -119,17 +110,14 @@ if (signOutButton) {
   });
 }
 
-// 現在の質問を表示
 function showCurrentQuestion() {
   const questionElement = document.getElementById('current-question');
   let content = '';
 
   const result = results.find(r => r.key === currentKey);
   if (result) {
-    // 結果を表示
     content = result.text;
 
-    // 結果を履歴に保存
     if (currentUser) {
       const userRef = database.ref(`users/${currentUser.uid}/history`);
       userRef.push({
@@ -145,7 +133,6 @@ function showCurrentQuestion() {
 
     document.getElementById('answers-area').style.display = 'none';
   } else {
-    // 質問を表示
     const question = questions.find(q => q.key === currentKey);
     content = question ? question.text : '質問が見つかりません';
   }
@@ -153,9 +140,7 @@ function showCurrentQuestion() {
   questionElement.textContent = content;
 }
 
-// 回答を処理
 function handleAnswer(answer) {
-  // Yes/Noに基づいてkeyを更新
   if (answer.toLowerCase() === 'yes') {
     if (currentN === 1) {
       currentKey = 20;
@@ -170,10 +155,9 @@ function handleAnswer(answer) {
     }
   }
   currentN += 1;
-  showCurrentQuestion(); // 次の質問を表示
+  showCurrentQuestion();
 }
 
-// ボタンのイベントリスナー
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.answer-button').forEach((button) => {
     button.addEventListener('click', (event) => {
@@ -189,7 +173,7 @@ function showSignOutArea() {
 
   const signOutButton = document.getElementById('sign-out-button');
   if (signOutButton) {
-    signOutButton.style.display = 'block'; // サインアウトボタンを表示
+    signOutButton.style.display = 'block'
   }
 }
 
@@ -200,7 +184,7 @@ function hideSignArea() {
 
   const signOutButton = document.getElementById('sign-out-button');
   if (signOutButton) {
-    signOutButton.style.display = 'none'; // サインアウトボタンを非表示
+    signOutButton.style.display = 'none';
   }
 }
 
