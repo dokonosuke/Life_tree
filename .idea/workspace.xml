@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="0707e965-b82c-49aa-8c37-92ab4283131d" name="Changes" comment="fixup! nkjm">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/mvp.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/mvp.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/app.js" afterDir="false" />
     </list>
@@ -44,11 +45,14 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;git-widget-placeholder&quot;: &quot;nkjm__js&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="SharedIndexes">
@@ -107,6 +111,16 @@
       <option name="presentableId" value="LOCAL-00006" />
       <option name="project" value="LOCAL" />
       <updated>1736839855269</updated>
+    </task>
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0707e965-b82c-49aa-8c37-92ab4283131d" name="Changes" comment="fixup! nkjm" />
+      <created>1736985170591</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1736985170591</updated>
+      <workItem from="1736985173017" duration="602000" />
+      <workItem from="1737002780616" duration="693000" />
+      <workItem from="1737004317201" duration="1255000" />
     </task>
     <option name="localTasksCounter" value="7" />
     <servers />

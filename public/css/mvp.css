@@ -584,6 +584,16 @@ table tr:nth-child(even) {
     justify-content: center;
   }
 
+.box-rounded-answer {
+    border-radius: 15px;
+    padding: 10px;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
   .box-rounded p {
     text-align: center;
   }
