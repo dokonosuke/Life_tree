@@ -78,7 +78,6 @@ if (signInButton) {
           }).catch((error) => {
             console.error("ユーザー情報保存エラー:", error);
           });
-
           currentUser = user;
           showSignOutArea();
           showCurrentQuestion();
